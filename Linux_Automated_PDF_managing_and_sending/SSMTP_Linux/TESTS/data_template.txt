@@ -1,0 +1,1 @@
+test data$'\n'$'\n'now$'\n'$'\n'current date $(date +%D)$'\n'en el mes de $(date +%^B)$'\n'

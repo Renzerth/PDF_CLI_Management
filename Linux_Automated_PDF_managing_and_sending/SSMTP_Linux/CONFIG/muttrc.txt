@@ -1,0 +1,47 @@
+# vi ~/.muttrc
+# Account
+set sendmail="/usr/sbin/ssmtp"
+set from="myMail@do.main"
+set realname="My Name"
+set envelope_from=yes
+set use_from=yes
+
+# Credentials -- IMAP
+set smtp_url="smtp://myMail@smtp.domain.com:587/"
+set smtp_pass="NN"
+set imap_user="myMail@do.main"
+set imap_pass="NN"
+
+# Credentials -- POP
+#set pop_user="..."
+#set pop_pass="..."
+#set pop_host="mail.uta4you.at"
+#set pop_delete
+
+# Mailboxes
+set folder="imaps://imap.domain.com:993"
+set spoolfile="+INBOX"
+
+# Message files 
+set header_cache="~/.mutt/cache/headers"
+set message_cachedir="~/.mutt/cache/bodies"
+set certificate_file="~/.mutt/certificates"
+
+# Mail files
+set folder="imaps://imap.domain.com/"
+set spoolfile="imaps://imap.domain/INBOX"
+set postponed="imaps://imap.domain.com/[domain]/Drafts"
+
+# Settings
+set mail_check=0
+set move=no
+set imap_keepalive=900
+set sort=threads
+set editor="leafpad"
+set ssl_starttls=yes
+set ssl_force_tls=yes
+
+# GnuPG bootstrap
+# source ~/.mutt/gpg.rc
+
+

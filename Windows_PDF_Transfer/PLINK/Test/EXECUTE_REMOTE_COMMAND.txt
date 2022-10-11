@@ -1,0 +1,11 @@
+﻿"C:\Program Files\PuTTY\plink.exe" -i "C:\Users\your_username\Documents\your_private_key.ppk" username@NetApp some_command
+
+
+plink -ssh user@host -pw password echo "hi"
+
+plink read@myhost ls -lrt /home/read/files;/etc/backups/do-backup.sh
+
+plink -ssh -t -i "PATH\your_private_key.ppk" user@host /etc/backups/do-backup.sh
+
+
+-t Disables Pseudo Terminal Type (PTY) allocation. Disables interactive secure shell to prompt a command (answer a command) with a text-terminal (tty) [TeleType - Unix]. The server will only respond and not ask for prompts/inputs even if the command is available.

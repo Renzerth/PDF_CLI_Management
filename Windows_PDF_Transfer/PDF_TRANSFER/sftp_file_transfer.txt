@@ -1,0 +1,16 @@
+# AUTOMATED PDF TRANSFER
+# Disable prompts
+option batch on 
+option confirm off 
+# Connect
+open sftp://%USERNAME%@%SERVER_NAME%/ -privatekey=%PPK_PATH% -hostkey="ssh-ed KEY"
+# Change to PDF files containing folder in local machine - Is expected to be local desktop path
+lcd %SOURCE_FOLDER%
+# Upload all PDF files in local desktop to remote server desktop
+# Directories must end with /
+# Remove sent files to avoid mixing files in next procedure
+put -delete -resumesupport=off *.pdf /home/%USERNAME%/Desktop/
+# Disconnect
+close
+# Exit WinSCP
+exit

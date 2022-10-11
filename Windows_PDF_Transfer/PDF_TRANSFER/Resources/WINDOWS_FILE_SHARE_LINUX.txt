@@ -1,0 +1,177 @@
+[WINSCP] FILE TRANSFER - Scripting and Task Automation
+
+All WinSCP commands have syntax:
+
+   command -switch -switch2 parameter1 parameter2 ... parametern
+
+COMMANDS
+https://winscp.net/eng/docs/commandline
+
+Comments 
+# Connect to the server
+open mysession
+
+THE OPEN SESSION COMMAND
+https://winscp.net/eng/docs/scriptcommand_open
+
+% https://winscp.net/eng/docs/guide_protecting_credentials_for_automation
+
+
+The first connection to an SSH server requires verification of the host key. To automate the verification in script, use -hostkey 
+switch of open command to accept the expected host key automatically.
+
+
+HOST KEY (SSH)
+
+Configuration Storage -> winSCP Stores key- USE ONLY HOST FINGERPRINT KEY SHA256
+key fingerprint is generated from a public key
+
+> Public Keys for Authentication PuTTYgen
+> Private Keys for Authentication
+
+GET FINGERPRINT FROM CONFIGURATION STORAGE OR FIRST CONNECTION TO SERVER IN UI
+GENERATE PAIR KEYS WITH PuTTYgen
+INSTALL PUBLIC KEY ON OPENSSH SERVER (.SSH/authorized_keys) (chmod 700/chmod 600)
+SPECIFY PPK FILE PATH (winscp.com /privatekey) OR OPEN SESSION (open -privatekey)
+
+
+Share public key. Private key is locally stored encrypted (usually). An authenticator makes a signature of the private key and passes it to the server (public key) to validate the login.
+
+INSTALL KEY PAIRS
+SSH AUTHENTICATION PAGE
+https://winscp.net/eng/docs/guide_public_key#configure_openssh
+https://winscp.net/eng/docs/ui_login_authentication#private_key_tools
+
+Connection with KEYS - Demo
+https://www.youtube.com/watch?v=g5T1Ahy2RkM
+
+
+OTHER STUFF
+
+get *.txt (FILE WILDCARD * or ? only - USE FILE MASK)
+/loglevel=1 -> Writes how commands are understood by winscp.
+you should also use /ini=nul switch to isolate the script execution from GUI configuration
+
+
+COMMAND MODE
+
+winscp.com /script="C:\Users\martin\Documents\myscript.txt"
+winscp.com /command "open sftp://martin@example.com/ -hostkey=""ssh-rsa 2048 xxxx...=""" "exit" (INSTRUCTION REQUIRES QUOTES "instructions" when using /command)
+winscp.exe /console /script="myscript.txt" /log="myscript.log"
+
+
+SCRIPT EXAMPLES
+winscp.com /command "open sftp://username@example.com/" "put d:\www\index.html" "exit"
+
+example.txt
+# Connect
+open sftp://user:password@example.com/ -hostkey="ssh-rsa 2048 xxxxxxxxxxx...="
+# Change remote directory
+cd /home/user
+# Download file to the local directory d:\
+get examplefile.txt d:\
+# Disconnect
+close
+# Exit WinSCP
+exit
+
+winscp.com /ini=nul /script=example.txt
+
+
+.bat program
+Windows batch file (.bat), like as follows:
+
+@echo off
+winscp.com /ini=nul /script=myscript.txt
+
+@echo off
+"C:\Program Files (x86)\WinSCP\WinSCP.com" ^
+/log="E:\Backup\WinSCP.log" /ini=nul ^
+/command ^
+"open sftp://username:password@domain.com/ -hostkey=""ssh-rsa 2048 leave_the_key"" -rawsettings Cipher=""aes,blowfish,3des,chacha20,WARN,arcfour,des"" KEX=""ecdh,dh-gex-sha1,dh-group14-sha1,dh-group1-sha1,rsa,WARN""" ^
+"synchronize local E:\Backup /home/domain/backup" ^
+"exit"
+set WINSCP_RESULT=%ERRORLEVEL%
+if %WINSCP_RESULT% equ 0 (
+echo Success
+) else (
+echo Error
+)
+exit /b %WINSCP_RESULT
+
+https://techglimpse.com/batch-script-automate-file-transfer-winscp/
+https://winscp.net/eng/docs/guide_automation
+https://winscp.net/eng/docs/scripting
+
+
+
+[PUTTY AND PSCP] WINDOWS SAFE COPY TO LINUX
+
+You could use the SCP program that comes with famed terminal emulator PuTTY: pscp.exe. If you create public/private key files, pscp.exe should have the ability to just do something like:
+
+pscp *.csv *.txt  username@unixhost:whatever/subdirectory/
+
+PATH-TO\putty>pscp  "TO-COPY-FILE\abc.txt" "auto_root@10.39.5.41:/home/auto/"
+
+
+EDIT:i mean i can go with passwordless authentication but still it involes ,the manual process of generating public,private keys(.ppk) using puttygen.exe in windows and then copying the public key to .ssh\authorized in linux.is there any way to automate this.
+
+So you need to hard-code the password in your script. You can give the password to pscp with its -pw option.
+
+
+https://unix.stackexchange.com/questions/37811/automate-file-transfer-from-windows-to-unix
+
+https://unix.stackexchange.com/questions/62522/how-to-copy-files-from-windows-to-linux-witout-password-using-a-script-or-progra
+
+
+
+
+[SMB/CIFS] Windows Shared Folder - Linux Mount
+
+sudo apt install cifs-utils
+
+sudo mkdir /mnt/win_share
+
+sudo mount -t cifs -o username=<win_share_user> //WIN_SHARE_IP/<share_name> /mnt/win_share
+
+or
+
+sudo mount -t cifs -o username=<win_share_user>,password=<win_share_password> //WIN_SHARE_IP/<share_name> /mnt/win_share
+
+
+With credential file
+
+/etc/win-credentials
+
+username=user
+password=password
+domain=domain
+
+sudo chown root: /etc/win-credentials
+sudo chmod 600 /etc/win-credentials
+
+sudo mount -t cifs -o credentials=/etc/win-credentials //WIN_SHARE_IP/<share_name> /mnt/win_share
+
+Use the dir_mode option to set the directory permission and file_mode to set the file permission:
+
+sudo mount -t cifs -o credentials=/etc/win-credentials,dir_mode=0755,file_mode=0755 //WIN_SHARE_IP/<share_name> /mnt/win_share
+
+
+https://linuxize.com/post/how-to-mount-cifs-windows-share-on-linux/
+https://www.maketecheasier.com/mount-windows-share-folder-linux/
+
+[SMB/CIFS] COPY FROM Linux Mount to Windows shared folder
+
+mount -t cifs //server/share /mnt/ -o username=user
+ > server can be the ip or the hostname of the windows server.
+ > share is the name of the network share
+ > /mnt/ is the mountpoint in the local linux machine
+ > user is the username that has the needed privileges
+
+you will be prompted for the password if no credentials given After mounting just copy the file:
+
+cp /path/to/file /mnt/wherever
+
+https://unix.stackexchange.com/questions/160020/need-to-automate-file-transfer-from-linux-server-to-windows-shared-folder
+
+
